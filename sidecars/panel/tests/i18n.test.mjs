@@ -71,3 +71,46 @@ test('Traditional Chinese (zh-TW) provides accurate localized terminology and to
   const saved=language.toggle();assert.equal(saved,'en');
   assert.equal(language.toggle(),'zh-TW');
 });
+
+test('requestError formatting covers all 7 kinds across locales, retryAfter rules, and non-visible filtering',()=>{
+  const kinds=['quota_exhausted','rate_limited','network_error','auth_error','service_unavailable','context_overflow','unknown'];
+  for(const locale of ['en','zh-CN','zh-TW']){
+    const ui=create(locale);
+    for(const kind of kinds){
+      const formatted=ui.formatRequestError({kind,retryAfterSec:null,diagnostic:'  <script>alert(1)</script>  '});
+      assert.ok(formatted,`${locale}:${kind}`);
+      assert.equal(formatted.kind,kind);
+      assert.ok(formatted.title && !formatted.title.startsWith('requestError_'),`${locale}:${kind} title`);
+      assert.ok(formatted.detail && !formatted.detail.startsWith('requestErrorDetail_'),`${locale}:${kind} detail`);
+      assert.ok(formatted.badge.includes(formatted.title),`${locale}:${kind} badge includes title`);
+      assert.equal(formatted.diagnostic,'<script>alert(1)</script>');
+      assert.equal(formatted.retryAfterSec,null);
+    }
+    const rl=ui.formatRequestError({kind:'rate_limited',retryAfterSec:12.2,diagnostic:'429'});
+    assert.equal(rl.retryAfterSec,13);
+    assert.match(rl.detail,/13s/);
+    const subSecond=ui.formatRequestError({kind:'rate_limited',retryAfterSec:0.2,diagnostic:'429'});
+    assert.equal(subSecond.retryAfterSec,1);
+    assert.match(subSecond.detail,/1s/);
+    for(const bad of [null,0,-5,NaN,'30']){
+      const ignored=ui.formatRequestError({kind:'rate_limited',retryAfterSec:bad,diagnostic:'429'});
+      assert.equal(ignored.retryAfterSec,null);
+      assert.doesNotMatch(ignored.detail,/\ds/);
+    }
+    const nonRateLimited=ui.formatRequestError({kind:'quota_exhausted',retryAfterSec:30,diagnostic:'quota'});
+    assert.equal(nonRateLimited.retryAfterSec,null);
+    assert.doesNotMatch(nonRateLimited.detail,/30s/);
+    const fallback=ui.formatRequestError({kind:'unrecognized_future_kind',retryAfterSec:null,diagnostic:'boom'});
+    assert.equal(fallback.kind,'unknown');
+    assert.equal(fallback.title,ui.t('requestError_unknown'));
+    for(const hidden of [null,undefined,'',{kind:'none'},{kind:'canceled'},{kind:''}]){
+      assert.equal(ui.formatRequestError(hidden),null);
+    }
+  }
+  const zhCN=create('zh-CN');
+  assert.equal(zhCN.formatRequestError({kind:'context_overflow',retryAfterSec:null,diagnostic:''}).title,'上下文超限');
+  assert.match(zhCN.formatRequestError({kind:'context_overflow',retryAfterSec:null,diagnostic:''}).detail,/压缩|新对话/);
+  const zhTW=create('zh-TW');
+  assert.equal(zhTW.formatRequestError({kind:'quota_exhausted',retryAfterSec:null,diagnostic:''}).title,'配額耗盡');
+  assert.equal(zhTW.formatRequestError({kind:'context_overflow',retryAfterSec:null,diagnostic:''}).title,'上下文超限');
+});

@@ -2,11 +2,11 @@ import {budgetError} from './collection-state.mjs';
 // Incremental JSON projection for trajectory RPCs. Large prompts, tool results,
 // images and executor payloads are validated and skipped, never buffered.
 import {normalizeConversationId} from './delegation.mjs';
-const scalar='scalar',nonempty='nonempty',presence='presence',calls='calls',guid='conversationId';
+const scalar='scalar',nonempty='nonempty',presence='presence',calls='calls',guid='conversationId',errorText='errorText';
 const usage=Object.fromEntries(['inputTokens','outputTokens','responseOutputTokens','thinkingOutputTokens','cacheReadTokens','cacheWriteTokens','apiProvider','responseId','messageId','model'].map(k=>[k,scalar]));
 const duration={seconds:scalar,nanos:scalar};
 const generators={'*':{stepIndices:{'*':scalar},chatModel:{usage,model:scalar,modelDisplayName:scalar,responseModel:scalar,
- streamingDuration:duration,timeToFirstToken:duration,retryInfos:{'*':{usage}},
+ streamingDuration:duration,timeToFirstToken:duration,retryInfos:{'*':{usage,error:errorText,retryReason:scalar,waitTime:duration}},
  chatStartMetadata:{createdAt:scalar,contextWindowMetadata:{estimatedTokensUsed:scalar,maxContextTokens:scalar}}}}};
 const subagentResult={conversationId:guid},subagentResults={'*':subagentResult};
 const invokeSubagent={conversationId:guid,results:subagentResults};
@@ -84,6 +84,9 @@ export class TrajectoryJson {
   // IDs are bounded independently of arbitrary prompt-sized strings. Invalid
   // values are still validated as JSON but never retained as relation metadata.
   if(t.node===guid){if(!t.overflow){if(t.buffer.length+text.length>36){t.buffer='';t.overflow=true;}else t.buffer+=text;}return;}
+  // Retry error text is truncated silently so oversized upstream error bodies
+  // can never trip the field budget and abort conversation statistics.
+  if(t.node===errorText){if(t.buffer.length<2048)t.buffer+=text.slice(0,2048-t.buffer.length);return;}
   if(t.key||stringAllowed(t.node)){
    if(t.overflow)return;t.buffer+=text;
    if(t.buffer.length>(t.key?1024:16384)){if(!t.key)throw budgetError('field',t.buffer.length,16384);t.buffer='';t.overflow=true;}
@@ -97,6 +100,7 @@ export class TrajectoryJson {
   else if(t.node==='textEstimate')value={tokens:Math.ceil(t.ascii/4+t.other/1.5),prefix:t.buffer};
   else if(t.node===presence)value=t.any;
   else if(t.node===guid){const id=!t.overflow&&normalizeConversationId(t.buffer);if(id){value=id;this.charge(value.length*2);}}
+  else if(t.node===errorText){value=t.buffer;this.charge(value.length*2);}
   else if(stringAllowed(t.node)){value=t.buffer;this.charge(value.length*2);}
   this.finishValue(value);
  }

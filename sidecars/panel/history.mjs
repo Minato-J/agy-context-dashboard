@@ -7,6 +7,7 @@ import { safeTranscriptStats } from './transcript.mjs';
 import { RATE_VERSION, RATE_REASONS } from './rate-quality.mjs';
 import {safeTaskUsage} from './task-usage.mjs';
 import {normalizeConversationId} from './delegation.mjs';
+import {safeRequestError} from './request-error.mjs';
 
 const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const SCOPE = /^[0-9a-f]{64}$/;
@@ -118,9 +119,10 @@ export function shouldKeepSaved(saved, fresh) {
 }
 
 export function reconcileMetrics(saved, fresh, savedAt = null) {
+  const requestError = safeRequestError(fresh?.requestError);
   if (shouldKeepSaved(saved,fresh)) return {...saved,taskUsage:safeTaskUsage(fresh.taskUsage)||safeTaskUsage(saved.taskUsage),delegatedConversations:fresh.delegatedConversations||saved.delegatedConversations,transcriptStats:fresh.transcriptStats||null,transcriptRestoredFromHistory:false,context:fresh.context || null,contextRestored:false,
-    restoredFromHistory:true,savedAt};
-  const result = {...fresh,contextRestored:false,transcriptRestoredFromHistory:false,restoredFromHistory:false,
+    requestError,restoredFromHistory:true,savedAt};
+  const result = {...fresh,requestError,contextRestored:false,transcriptRestoredFromHistory:false,restoredFromHistory:false,
     speedRestoredFromHistory:fresh.speedRestoredFromHistory===true,
     cacheRestoredFromHistory:fresh.cacheRestoredFromHistory===true};
   if (!usableMetrics(saved)) return result;

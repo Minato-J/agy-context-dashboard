@@ -57,6 +57,11 @@
           <svg class="panel-speed-trail" id="panel-speed-trail" viewBox="0 0 120 44" aria-hidden="true"></svg>
           <div class="style-toggle" role="group" data-i18n-aria="speedStyle" aria-label="Speed card style"><button class="style-toggle-button" type="button" id="speed-style-minimal" data-speed-style-choice="minimal"><svg class="icon"><use href="#pulse"/></svg></button><button class="style-toggle-button" type="button" id="speed-style-cat" data-speed-style-choice="cat"><svg class="icon"><use href="#cat"/></svg></button></div>
         </div>
+        <section class="request-error" id="speed-request-error" role="alert" hidden>
+          <div class="request-error-head"><span class="request-error-icon" aria-hidden="true">!</span><strong class="request-error-title" id="speed-request-error-title"></strong></div>
+          <p class="request-error-detail" id="speed-request-error-detail"></p>
+          <div class="request-error-diag" id="speed-request-error-diag"></div>
+        </section>
         <dl class="stats-grid speed-stats">
           <div><dt><span data-i18n="sessionAvg">Session avg</span></dt><dd><strong id="session-tps">—</strong><span class="stat-unit" id="panel-session-unit"> tok/s</span></dd></div>
           <div><dt><span data-i18n="ttftShort">TTFT</span></dt><dd id="ttft">—</dd></div>

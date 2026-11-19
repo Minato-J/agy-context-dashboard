@@ -9,6 +9,7 @@ import { TranscriptReader } from './transcript.mjs';
 import {DelegatedUsage} from './delegated-usage.mjs';
 import {safeTaskUsage} from './task-usage.mjs';
 import {delegatedIds} from './delegation.mjs';
+import {safeRequestError} from './request-error.mjs';
 
 const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const LOCAL_SCOPE = createHash('sha256').update('ag-pulse:local-unauthenticated').digest('hex');
@@ -61,12 +62,12 @@ export class MetricsStore {
     id=id.toLowerCase();
     const identity = this.identity, scope = this.storageScope(identity), epoch = this.epoch;
     const entry = this.sessions.get(id);
-    if (usableMetrics(entry?.data)) return { ...entry.data, transcriptRestoredFromHistory:!!entry.data.transcriptStats, restoredFromHistory: true, savedAt: entry.savedAt || null };
+    if (usableMetrics(entry?.data)) return { ...entry.data, requestError: null, transcriptRestoredFromHistory:!!entry.data.transcriptStats, restoredFromHistory: true, savedAt: entry.savedAt || null };
     const saved = await this.history.load(scope,id);
     if (!this.owned() || identity !== this.identity || epoch !== this.epoch) return null;
     if (!saved) return null;
-    if (!this.sessions.has(id)) this.sessions.set(id,{data:saved.metrics,savedAt:saved.savedAt,updatedAt:0});
-    return {...saved.metrics,transcriptRestoredFromHistory:!!saved.metrics.transcriptStats,restoredFromHistory:true,savedAt:saved.savedAt};
+    if (!this.sessions.has(id)) this.sessions.set(id,{data:{...saved.metrics,requestError:null},savedAt:saved.savedAt,updatedAt:0});
+    return {...saved.metrics,requestError:null,transcriptRestoredFromHistory:!!saved.metrics.transcriptStats,restoredFromHistory:true,savedAt:saved.savedAt};
   }
 
   async refreshQuota(force = false) {
@@ -109,6 +110,7 @@ export class MetricsStore {
     const current=()=>isCurrent()&&this.owned()&&scope===this.storageScope(identity)&&identity===this.identity&&epoch===this.epoch&&this.sessions.get(id)===entry;
     if(!entry||!current())return;
     const fresh=safeMetrics(result.metrics,id);
+    fresh.requestError=safeRequestError(result.metrics?.requestError);
     fresh.delegatedConversations=[...new Set([...(result.delegatedIds||[]),...(entry.data?.delegatedConversations||[])])].filter(x=>GUID.test(x)).slice(0,128);
     // A large parent snapshot does not verify its descendants. Display the
     // new root alone, never an old root/subagent aggregate as current. Keep
@@ -146,7 +148,7 @@ export class MetricsStore {
       if (!entry.data) {
         const saved = await this.history.load(scope,id);
         if (!current()) throw new Error('后台已重新连接，请等待刷新');
-        if (saved) { entry.data = saved.metrics; entry.savedAt = saved.savedAt; entry.lastSuccessAt=saved.savedAt; }
+        if (saved) { entry.data = { ...saved.metrics, requestError: null }; entry.savedAt = saved.savedAt; entry.lastSuccessAt=saved.savedAt; }
       }
       if(entry.backgroundOnly&&this.background){
         const state=this.background.state(id);
@@ -185,7 +187,7 @@ export class MetricsStore {
         entry.collection=collectionFailure(error);
         if(entry.collection&&entry.collection.kind!=='field')this.startBackground(scope,id,entry,current);
       }
-      if (current() && usableMetrics(entry.data)) { entry.updatedAt = Date.now(); entry.data = {...entry.data,transcriptRestoredFromHistory:!!entry.data.transcriptStats,restoredFromHistory:true,savedAt:entry.savedAt || null}; return entry.data; }
+      if (current() && usableMetrics(entry.data)) { entry.updatedAt = Date.now(); entry.data = {...entry.data,requestError:null,transcriptRestoredFromHistory:!!entry.data.transcriptStats,restoredFromHistory:true,savedAt:entry.savedAt || null}; return entry.data; }
       throw error;
     }).finally(() => { entry.pending = null; });
     return entry.pending;

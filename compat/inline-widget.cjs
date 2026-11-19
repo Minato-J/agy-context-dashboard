@@ -400,7 +400,7 @@ module.exports = function installAgPulseInlineWidget() {
   function createStripInstance(){
   let node=null,root=null,data=null,pending=false,cardName=null,hoverTimer=null,openTimer=null,warmUntil=0,lastConversation=undefined,lastFetch=0,lastExpiredRefresh=0,resizeObserver=null,modelObserver=null,themeController=null,changingCards=false;
   const isWarm=()=>Boolean(cardName||Date.now()<warmUntil);
-  let chosen=null,group=null,autoGroupId=null,lastModelSig=null,quotaSigCache=null,quotaObservedAt=0;
+  let chosen=null,group=null,autoGroupId=null,lastModelSig=null,quotaSigCache=null,quotaObservedAt=0,lastRequestErrorSig='';
   let refreshRequest=null,manualRequest=null,hoverQuotaRequest=null,lastQuotaHoverAt=0,requestEpoch=0,scopeRequestEpoch=0;
   let composer=null,usageDashboard=null,updateMenu=null;
   let densityFrame=null,densityMotion=null,densityProbe=null;
@@ -474,7 +474,7 @@ module.exports = function installAgPulseInlineWidget() {
     const prevId=lastConversation;
     lastConversation=id;requestEpoch++;pending=false;refreshRequest=null;lastFetch=0;
     stopDensityMotion();densityFrame=null;densityProbe=null;
-    manualRequest=null;hoverQuotaRequest=null;lastQuotaHoverAt=0;quotaSigCache=null;setQuotaBusy(false);
+    manualRequest=null;hoverQuotaRequest=null;lastQuotaHoverAt=0;quotaSigCache=null;lastRequestErrorSig='';setQuotaBusy(false);
     emptyCompact=true;springNextExpand=false;suppressNextMotion=false;
     if(!id){hydrated=true;seenEmptySession=true;}
     else if(prevId===null&&seenEmptySession){hydrated=false;}
@@ -962,6 +962,8 @@ module.exports = function installAgPulseInlineWidget() {
       :host(:not([data-collection=limited])) .collection-warning{display:none!important}.collection-warning,.collection-processing{display:none}.collection-label{display:none}:host([data-collection=limited]) [data-card=cache]{color:var(--pulse-warning)}:host([data-collection=limited]) [data-card=cache]>svg:first-child{display:none}:host([data-collection=limited]) [data-card=cache]>.collection-warning{display:block}:host([data-collection=limited]) [data-card=cache]>:not(svg){display:none}:host([data-collection=limited]) [data-card=cache]>.collection-label{display:inline}:host([data-collection=limited].icons-only) [data-card=cache]>.collection-label{display:none}
       :host([data-collection=processing]) .collection-state::before{background:var(--pulse-emphasis)}:host([data-collection=processing]) .collection-notice strong,:host([data-collection=processing]) [data-card=cache]{color:var(--pulse-emphasis)}:host([data-collection=processing]) [data-card=cache]>svg:first-child,:host([data-collection=processing]) [data-card=cache]>:not(svg){display:none}:host([data-collection=processing]) [data-card=cache]>.collection-processing{display:block}:host([data-collection=processing]) [data-card=cache]>.collection-label{display:inline}:host([data-collection=processing].icons-only) [data-card=cache]>.collection-label{display:none}:host(:not([data-collection=processing])) .collection-processing{display:none!important}
       [data-card=cache]{position:relative}[data-card=cache][data-task-current-only=true]::after{content:'!';position:absolute;top:0;left:13px;z-index:1;width:9px;height:9px;border-radius:50%;background:var(--pulse-warning);color:var(--pulse-background);font-size:7px;font-weight:700;line-height:9px;text-align:center;pointer-events:none}
+      [data-card=speed]{position:relative}[data-card=speed][data-request-error=true]{color:var(--pulse-danger);background:color-mix(in srgb,var(--pulse-danger) 10%,transparent)}[data-card=speed][data-request-error=true]:hover,[data-card=speed][data-request-error=true][aria-expanded=true]{color:var(--pulse-danger);background:color-mix(in srgb,var(--pulse-danger) 18%,transparent)}[data-card=speed][data-request-error=true]::after{content:'!';position:absolute;top:0;right:1px;z-index:1;width:9px;height:9px;border-radius:50%;background:var(--pulse-danger);color:var(--pulse-background);font-size:7px;font-weight:700;line-height:9px;text-align:center;pointer-events:none}
+      .request-error{margin-top:8px;padding:8px 10px;border-radius:8px;border:1px solid color-mix(in srgb,var(--pulse-danger) 28%,var(--pulse-border));border-left:3px solid var(--pulse-danger);background:color-mix(in srgb,var(--pulse-danger) 10%,transparent);font-size:11px;line-height:1.45;color:var(--pulse-foreground)}.request-error[hidden]{display:none}.request-error-head{display:flex;align-items:center;gap:6px;min-width:0}.request-error-icon{display:inline-grid;place-items:center;flex:none;width:14px;height:14px;border-radius:50%;background:var(--pulse-danger);color:var(--pulse-background);font-size:9px;font-weight:700;line-height:1}.request-error-title{font-size:12px;font-weight:600;color:var(--pulse-danger);min-width:0;overflow-wrap:anywhere}.request-error-detail{margin:4px 0 0;color:var(--pulse-foreground);font-size:11px;line-height:1.45;overflow-wrap:anywhere}.request-error-diag{margin-top:6px;padding-top:6px;border-top:1px solid color-mix(in srgb,var(--pulse-danger) 20%,var(--pulse-separator));color:var(--pulse-muted);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10.5px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;max-height:96px;overflow-y:auto;scrollbar-width:thin}.request-error-diag:empty{display:none}
       #transcript-details{margin-top:10px;border-top:1px solid var(--pulse-separator);padding-top:9px}#transcript-details summary{cursor:pointer;font-size:11px;color:var(--pulse-label)}#transcript-total{float:right;margin-left:8px;font-variant-numeric:tabular-nums;color:var(--pulse-foreground);font-size:11px}
       :host{--cat:var(--pulse-accent);--cat-shade:color-mix(in srgb,var(--pulse-accent) 70%,var(--pulse-background));--cat-light:color-mix(in srgb,var(--pulse-accent) 18%,var(--pulse-foreground));--cat-outline:color-mix(in srgb,var(--pulse-accent) 28%,var(--pulse-background));--cat-pink:color-mix(in srgb,var(--pulse-emphasis) 55%,var(--pulse-foreground));--cat-eye:var(--pulse-background);--cat-whisker:color-mix(in srgb,var(--pulse-accent) 32%,var(--pulse-foreground));--cat-tip:var(--pulse-emphasis);--cat-tint:color-mix(in srgb,var(--pulse-accent) 15%,transparent)}
       :host([data-pulse-theme="light"]){--cat-shade:color-mix(in srgb,var(--pulse-accent) 72%,var(--pulse-foreground));--cat-light:color-mix(in srgb,var(--pulse-accent) 16%,#fff);--cat-outline:color-mix(in srgb,var(--pulse-accent) 28%,var(--pulse-foreground));--cat-eye:var(--pulse-foreground);--cat-whisker:color-mix(in srgb,var(--pulse-accent) 38%,var(--pulse-foreground));--cat-tint:color-mix(in srgb,var(--pulse-accent) 12%,transparent)}
@@ -1046,6 +1048,7 @@ module.exports = function installAgPulseInlineWidget() {
       <button class="chip" data-card="context" data-i18n-aria="context" aria-controls="context-card" aria-expanded="false"><span class="context-ring" id="context-ring" aria-hidden="true"></span><span class="context-label" data-i18n="contextShort">Ctx</span><strong id="context-percent">—</strong></button>
     </div><section class="card" id="speed-card" role="region" data-i18n-aria="session" aria-label="Session statistics" hidden>
       <div class="heading speed-hero"><div class="speed-hero-main"><div class="speed-hero-label"><svg class="cat-badge" id="card-cat-badge" viewBox="0 0 16 10" aria-hidden="true"></svg><span data-i18n="latestSpeed">${t('latestSpeed')}</span></div><div class="speed-hero-rate"><strong id="latest-rate">—</strong><span class="speed-unit" id="latest-unit">tok/s</span></div></div><svg class="dashboard-speed-trail" id="speed-trail" viewBox="0 0 140 54" aria-hidden="true"></svg><div class="style-toggle" role="group" data-i18n-aria="speedStyle"><button type="button" class="style-toggle-button" id="speed-style-minimal" data-speed-style-choice="minimal"><svg viewBox="0 0 16 10" aria-hidden="true"><path class="speed-pulse-icon" d="M1 5h3l2-4 3 8 2-4h4"/></svg></button><button type="button" class="style-toggle-button" id="speed-style-cat" data-speed-style-choice="cat"><svg class="cat-badge" id="style-cat-icon" viewBox="0 0 16 10" aria-hidden="true"></svg></button></div></div>
+      <section class="request-error" id="speed-request-error" role="alert" hidden><div class="request-error-head"><span class="request-error-icon" aria-hidden="true">!</span><strong class="request-error-title" id="speed-request-error-title"></strong></div><p class="request-error-detail" id="speed-request-error-detail"></p><div class="request-error-diag" id="speed-request-error-diag"></div></section>
       <dl class="stats-grid speed-stats"><div><dt data-i18n="sessionAvg">${t('sessionAvg')}</dt><dd><strong id="session-rate">—</strong><span class="speed-unit" id="session-unit"> tok/s</span></dd></div><div id="ttft-cell"><dt data-i18n="ttftShort">${t('ttftShort')}</dt><dd><strong id="ttft">—</strong><span class="speed-unit" id="ttft-unit"></span></dd></div><div><dt data-i18n="peakSpeed">${t('peakSpeed')}</dt><dd><strong id="peak-rate">—</strong><span class="speed-unit" id="peak-unit"> tok/s</span></dd></div></dl>
       <div class="speed-meta" id="speed-meta"><span id="speed-times">—</span><span id="tokens">—</span></div>
       <div class="speed-foot" id="speed-foot"><span id="speed-basis-tag"></span><span id="samples">—</span></div>
@@ -1145,6 +1148,24 @@ module.exports = function installAgPulseInlineWidget() {
     text('active-group-name',group?label(group):'—');
     hidden($('active-quota-group'),!group);
     const speed=data.speed,collection=data.collection;
+    const requestError=language.formatRequestError?.(speed?.requestError)||null;
+    const speedChip=root.querySelector('[data-card="speed"]');
+    attribute(speedChip,'data-request-error',requestError?'true':null);
+    attribute(speedChip,'aria-label',requestError?requestError.badge:t('session'));
+    attribute(speedChip,'title',requestError?requestError.badge:null);
+    const errorBox=$('speed-request-error');
+    if(errorBox){
+      hidden(errorBox,!requestError);
+      attribute(errorBox,'data-kind',requestError?requestError.kind:null);
+      text('speed-request-error-title',requestError?requestError.title:'');
+      text('speed-request-error-detail',requestError?requestError.detail:'');
+      text('speed-request-error-diag',requestError?requestError.diagnostic:'');
+      const nextErrorSig=requestError?`${requestError.kind}\n${requestError.title}\n${requestError.detail}\n${requestError.diagnostic}`:'';
+      if(nextErrorSig!==lastRequestErrorSig){
+        lastRequestErrorSig=nextErrorSig;
+        if(cardName==='speed')cardSide=null;
+      }
+    }
     const taskUsage=Number.isSafeInteger(speed?.taskUsage?.subagents)&&speed.taskUsage.subagents>0?speed.taskUsage:null;
     const limited=collection?.state==='limited'&&collection.code==='budget-exceeded';
     const processing=collection?.state==='processing'&&collection.code==='background-collection',collectionActive=limited||processing;
@@ -1186,7 +1207,7 @@ module.exports = function installAgPulseInlineWidget() {
     hidden(root.querySelector('[data-card="cache"]'),false);
     const context=speed?.context, hasCapacity=typeof context?.usedFraction==='number';
     hidden(root.querySelector('[data-card="context"]'),false);
-    const empty=(surface&&!surface.useSharedComposer?surface.conversationState?.(composer).status==='new':composer?.kind==='main'&&(!lastConversation||(!speed?.requests&&!speed?.steps&&!hasCapacity)))&&data.connection==='live'&&!data.sessionError&&!collectionActive;
+    const empty=(surface&&!surface.useSharedComposer?surface.conversationState?.(composer).status==='new':composer?.kind==='main'&&(!lastConversation||(!speed?.requests&&!speed?.steps&&!hasCapacity&&!requestError)))&&data.connection==='live'&&!data.sessionError&&!collectionActive&&!requestError;
     text('context-percent',hasCapacity?`${Math.round(context.usedFraction*100)}%`:'—');
     style($('context-ring'),'--used-angle',`${hasCapacity?Math.min(1,context.usedFraction)*360:0}deg`);
     text('context-summary',hasCapacity?t('contextUsed',{used:Math.round(context.usedFraction*100),remaining:Math.round(context.remainingFraction*100)}):collectionActive?'—':t(empty?'waitingRequest':'contextUnknown'));
@@ -1227,7 +1248,7 @@ module.exports = function installAgPulseInlineWidget() {
     const tokens=usage?.tokens || cache;
     // Keep coverage in the data model; the compact card shows readable counters.
     const hasTotal=tokens?.measuredRequests&&Number.isSafeInteger(tokens.totalTokens)&&tokens.totalTokens>=0;
-    const hasStripData=Boolean(collectionActive||stripRate!==null||hasTotal||(typeof cache?.hitRate==='number'&&Number.isFinite(cache.hitRate))||hasCapacity);
+    const hasStripData=Boolean(collectionActive||requestError||stripRate!==null||hasTotal||(typeof cache?.hitRate==='number'&&Number.isFinite(cache.hitRate))||hasCapacity);
     if(!hasStripData){
       emptyCompact=true;
       if(hydrated)seenEmptySession=true;

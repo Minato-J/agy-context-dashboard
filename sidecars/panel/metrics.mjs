@@ -1,6 +1,7 @@
 // Pure transforms. No credentials, prompts, or message text enter the public result.
 import { contextMetrics, formatModelName } from './context.mjs';
 import { classifyRates, RATE_VERSION, RATE_REASONS } from './rate-quality.mjs';
+import { classifyRequestError, toVisibleRequestError } from './request-error.mjs';
 export function seconds(value) {
   if (typeof value === 'number') return Number.isFinite(value) && value >= 0 ? value : null;
   if (typeof value === 'string' && /^\d+(?:\.\d+)?s$/.test(value)) {
@@ -73,6 +74,8 @@ export function trajectoryMetrics(response, storage = null) {
   for (const [index, generator] of generators.entries()) {
     const chat = generator.chatModel;
     if (!chat?.usage) continue;
+    const finalRetry = Array.isArray(chat.retryInfos) ? chat.retryInfos.at(-1) : null;
+    if (classifyRequestError(finalRetry?.error, { retryReason: finalRetry?.retryReason, waitTime: finalRetry?.waitTime }).kind !== 'none') continue;
     const usage = chat.usage;
     // IDE executionId identifies a planner run/turn, not an individual model
     // request: tool follow-ups share it while having distinct responseIds.
@@ -170,6 +173,11 @@ export function trajectoryMetrics(response, storage = null) {
   const toolSeconds = storage ? storage.toolSeconds() : unionSeconds(tools.map(s => [Date.parse(s.metadata.startedAt || s.metadata.createdAt), Date.parse(s.metadata.completedAt)]));
   const latest = samples.at(-1) || null;
   const lastChat = storage ? storage.lastChat() : [...generators].reverse().find(g => g.chatModel)?.chatModel;
+  const lastRetry = Array.isArray(lastChat?.retryInfos) ? lastChat.retryInfos.at(-1) : null;
+  const requestError = toVisibleRequestError(lastRetry?.error, {
+    retryReason: lastRetry?.retryReason,
+    waitTime: lastRetry?.waitTime,
+  });
   let lastActiveMs = NaN;
   const considerTime = value => {
     if (typeof value !== 'string') return;
@@ -205,6 +213,7 @@ export function trajectoryMetrics(response, storage = null) {
       model:lastChat?.modelDisplayName || lastChat?.responseModel || String(lastChat?.model || ''),
       sampledAt:lastChat?.chatStartMetadata?.createdAt,
     }),
+    requestError,
     complete: Number(response.numTotalGeneratorMetadata ?? generators.length) === generators.length,
   };
 }

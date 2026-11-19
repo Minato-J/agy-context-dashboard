@@ -266,7 +266,27 @@ function render() {
   const trailSamples=speed&&!legacyRate?(Array.isArray(speed.recentTps)&&speed.recentTps.length?speed.recentTps.filter(v=>isFiniteRate(v)&&v>0):latestVal>0?[Math.round(latestVal*10)/10]:[]):[];
   renderPanelTrail(trailSamples);
   $('strip-tps').textContent = rate(speed?.tps);
-  $('speed-tab').title=rate(speed?.tps)+' tok/s';
+  const requestError=language.formatRequestError?.(speed?.requestError)||null;
+  const speedTab=$('speed-tab');
+  const speedAttr=(name,value)=>{if(value===null){if(speedTab.hasAttribute(name))speedTab.removeAttribute(name);}else if(speedTab.getAttribute(name)!==value)speedTab.setAttribute(name,value);};
+  speedAttr('data-request-error',requestError?'true':null);
+  speedAttr('aria-label',requestError?requestError.badge:null);
+  speedTab.title=requestError?requestError.badge:`${rate(speed?.tps)} tok/s`;
+  const speedErrorBox=$('speed-request-error');
+  if(speedErrorBox){
+    hidden('speed-request-error',!requestError);
+    if(requestError){
+      speedErrorBox.dataset.kind=requestError.kind;
+      text('speed-request-error-title',requestError.title);
+      text('speed-request-error-detail',requestError.detail);
+      text('speed-request-error-diag',requestError.diagnostic);
+    }else{
+      speedErrorBox.removeAttribute('data-kind');
+      text('speed-request-error-title','');
+      text('speed-request-error-detail','');
+      text('speed-request-error-diag','');
+    }
+  }
   $('session-tps').textContent = legacyRate?t('ratePending'):rate(speed?.tps);
   hidden('panel-session-unit',Boolean(legacyRate));
   $('latest-tps').textContent = unreliableRate?t('timingUnreliable'):legacyRate?t('ratePending'):rate(latestVal);
