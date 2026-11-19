@@ -292,7 +292,17 @@ export class RuntimeUi {
         const proofKey=target.ideWebview?JSON.stringify([target.expectedFrameId,target.expectedParentId,target.expectedUrl,target.workbenchId]):null;
         if (connection && (connection.origin !== this.targetOrigin(target)||connection.proofKey!==proofKey)) { await this.detach(connection); this.sessions.delete(target.webSocketDebuggerUrl); }
       }
-      for (const target of targets) if (!this.sessions.has(target.webSocketDebuggerUrl)) this.sessions.set(target.webSocketDebuggerUrl, await this.attach(target));
+      let attachError = null;
+      for (const target of targets) {
+        if (!this.sessions.has(target.webSocketDebuggerUrl)) {
+          try {
+            this.sessions.set(target.webSocketDebuggerUrl, await this.attach(target));
+          } catch (error) {
+            attachError ||= error;
+          }
+        }
+      }
+      if (!this.sessions.size && attachError) throw attachError;
       if (this.stopping||!await this.owns()) { await this.detachAll(); return; }
       let sampledTheme={};
       for (const [url, connection] of this.sessions) {

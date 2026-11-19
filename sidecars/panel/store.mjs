@@ -216,7 +216,7 @@ export class MetricsStore {
         try { speed = await this.session(selected, force); }
         catch (e) { sessionError = e.message; }
         const entry=this.sessions.get(selected.toLowerCase());
-        if(entry?.collection||this.background?.state(selected.toLowerCase()))collection={...entry?.collection,...this.background?.state(selected.toLowerCase()),freshness:usableMetrics(speed)?'saved':'unavailable',lastSuccessAt:entry.lastSuccessAt||null};
+        if(entry?.collection||this.background?.state(selected.toLowerCase()))collection={...entry?.collection,...this.background?.state(selected.toLowerCase()),freshness:usableMetrics(speed)?'saved':'unavailable',lastSuccessAt:entry?.lastSuccessAt||null};
       }
     } catch (e) {
       connection = this.quota ? 'stale' : 'offline'; error = e.message;
@@ -224,7 +224,7 @@ export class MetricsStore {
     }
     if(!collection&&conversationId){
       const entry=this.sessions.get(conversationId.toLowerCase());
-      if(entry?.collection||this.background?.state(conversationId.toLowerCase()))collection={...entry?.collection,...this.background?.state(conversationId.toLowerCase()),freshness:usableMetrics(speed)?'saved':'unavailable',lastSuccessAt:entry.lastSuccessAt||null};
+      if(entry?.collection||this.background?.state(conversationId.toLowerCase()))collection={...entry?.collection,...this.background?.state(conversationId.toLowerCase()),freshness:usableMetrics(speed)?'saved':'unavailable',lastSuccessAt:entry?.lastSuccessAt||null};
     }
     return {
       connection, error, sessionError, collection, serverTime: new Date().toISOString(),

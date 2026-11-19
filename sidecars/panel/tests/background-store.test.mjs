@@ -50,3 +50,13 @@ test('large parent shows current root only while retaining previous task aggrega
  const data=entry.data;assert.equal(data.taskUsage.state,'partial');assert.equal(data.taskUsage.loadedSubagents,0);assert.equal(data.taskUsage.tokens.totalTokens,current.tokens.totalTokens);assert.equal(data.taskUsage.cache.hitRate,current.cache.hitRate);
  assert.notEqual(data.taskUsage.tokens.totalTokens,oldTask.tokens.totalTokens);assert.deepEqual(safeMetrics(data,id).previousTaskUsage,oldTask);
 });
+
+test('snapshot tolerates background state when session entry is absent',async t=>{
+ const {store}=setup(t);
+ store.background.state=requested=>requested===id?{state:'processing',stage:'steps'}:null;
+ store.client.discover=async()=>{throw Error('Offline');};
+ const result=await store.snapshot({conversationId:id});
+ assert.equal(result.connection,'offline');
+ assert.equal(result.collection.state,'processing');
+ assert.equal(result.collection.lastSuccessAt,null);
+});

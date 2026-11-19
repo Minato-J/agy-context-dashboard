@@ -346,3 +346,22 @@ test('runtime bridge allows autoRelaunchDebug boolean preference updates',async(
   assert.ok(c.calls.some(call=>call.params.expression?.includes('"autoRelaunchDebug":true')));
   await ui.stop();
 });
+
+test('one failing target attach does not block other healthy windows in the same tick',async()=>{
+  const connections=[];
+  const ui=new RuntimeUi({
+    snapshot:async()=>({connection:'live',groups:[],speed:null}),
+    source:'safe-widget',
+    discover:async()=>[target('broken'),target('healthy')],
+    enabled:()=>true,
+    connect:(url,options)=>{
+      if(url.endsWith('/broken'))return {open:async()=>{throw new Error('Target closed');},close(){}};
+      const c=new FakeConnection(options);connections.push(c);return c;
+    },
+  });
+  await ui.tick();
+  assert.equal(connections.length,1);
+  assert.equal(ui.sessions.size,1);
+  assert.equal(ui.health.state,'mounted');
+  await ui.stop();
+});
