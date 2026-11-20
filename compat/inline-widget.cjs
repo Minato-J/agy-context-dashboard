@@ -940,13 +940,13 @@ module.exports = function installAgPulseInlineWidget() {
       .pace-badge[data-pace=exhaust]{color:var(--pulse-warning);background:color-mix(in srgb,var(--pulse-warning) 14%,transparent)}.pace-badge[data-pace=exhaust] .pace-dot,.pace-badge[data-pace=tight] .pace-dot{background:var(--pulse-warning)}
       .pace-badge[data-critical=true]{color:var(--pulse-danger);background:color-mix(in srgb,var(--pulse-danger) 14%,transparent)}.pace-badge[data-critical=true] .pace-dot{background:var(--pulse-danger)}
       .pace-badge[data-pace=ok] .pace-dot{background:var(--pulse-success)}
-      .quota-section .quota-track{position:relative;height:5px;overflow:hidden}.quota-track .track-actual{border-radius:999px;background:var(--pulse-accent)}
-      .quota-forecast{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:11px;line-height:14px;color:var(--pulse-muted);font-variant-numeric:tabular-nums}.quota-forecast[hidden]{display:none}.forecast-main{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.forecast-main[data-alert=true]{color:var(--pulse-label);font-weight:500}
+      .quota-section .quota-track{position:relative;height:6px;overflow:hidden}.quota-track .track-actual,.quota-track .track-forecast{position:absolute;left:0;top:0;height:100%}.quota-track .track-actual{border-radius:999px}.quota-track .track-forecast{width:0;border-radius:0 999px 999px 0;background:repeating-linear-gradient(-45deg,var(--pulse-card) 0 1.5px,transparent 1.5px 4px);opacity:.8;pointer-events:none}
+      .quota-forecast{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:11px;line-height:14px;color:var(--pulse-muted);font-variant-numeric:tabular-nums}.quota-forecast[hidden]{display:none}.forecast-main{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.forecast-main[data-alert=true]{color:var(--pulse-warning);font-weight:500}
       .quota-usage{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:3px;font-size:11px;line-height:14px;color:var(--pulse-muted);font-variant-numeric:tabular-nums}.quota-usage[hidden]{display:none}.quota-usage-val{color:var(--pulse-label);font-weight:500;text-align:right}
       .quota-siblings{display:flex;flex-direction:column;gap:4px;margin-top:7px;padding-top:7px;border-top:1px solid var(--pulse-separator)}.quota-siblings[hidden]{display:none}
       .quota-sibling{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:5px 7px;border:1px solid transparent;border-radius:6px;background:var(--pulse-control);color:var(--pulse-label);font-size:11px;line-height:15px;text-align:left;transition:background-color 120ms ease,border-color 120ms ease,color 120ms ease}.quota-sibling:hover{background:var(--pulse-hover);border-color:var(--pulse-border);color:var(--pulse-foreground)}
       .sibling-label{display:inline-flex;align-items:center;gap:5px;min-width:0;flex:1 1 auto;font-weight:500}.sibling-dot{width:5px;height:5px;border-radius:50%;background:var(--pulse-muted);opacity:.65;flex:none}.sibling-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-      .sibling-metrics{display:inline-flex;align-items:center;gap:8px;flex:none;font-variant-numeric:tabular-nums}.sibling-win{display:inline-flex;align-items:center;gap:4px}.sibling-tag{color:var(--pulse-muted)}.sibling-val{color:var(--pulse-foreground);font-weight:550}.sibling-bar{display:block;width:24px;height:3px;border-radius:999px;background:var(--pulse-track);overflow:hidden}.sibling-bar i{display:block;height:100%;width:0;border-radius:999px;background:color-mix(in srgb,var(--pulse-accent) 72%,transparent)}
+      .sibling-metrics{display:inline-flex;align-items:center;gap:8px;flex:none;font-variant-numeric:tabular-nums}.sibling-win{display:inline-flex;align-items:center;gap:4px}.sibling-tag{color:var(--pulse-muted)}.sibling-val{color:var(--pulse-foreground);font-weight:550}.sibling-bar{display:block;width:24px;height:3px;border-radius:999px;background:var(--pulse-track);overflow:hidden}.sibling-bar i{display:block;height:100%;width:0;border-radius:999px;background:color-mix(in srgb,var(--pulse-muted) 65%,var(--pulse-foreground))}
       .refresh{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:5px;color:var(--pulse-muted);border:0;background:transparent;padding:0}.refresh:hover{color:var(--pulse-foreground);background:var(--pulse-hover)}.refresh[aria-busy=true]{color:var(--pulse-emphasis);cursor:wait}.refresh[aria-busy=true] svg{animation:pulse-refresh-spin 1s linear infinite;transform-origin:center}
       .quota-spinner{width:14px;height:14px;border-radius:4px;pointer-events:none;flex:none}.quota-spinner[hidden]{display:none}
       @keyframes pulse-refresh-spin{to{transform:rotate(360deg)}}
@@ -1060,7 +1060,7 @@ module.exports = function installAgPulseInlineWidget() {
       <div class="context-hero-row"><strong id="context-summary">—</strong><span id="context-tokens">—</span></div>
       <div class="track" role="progressbar" data-i18n-aria="context" id="context-track"><i id="context-fill"></i></div>
       <div class="quota-bar-head"><div class="quota-spotlight-head" id="active-quota-group"><i class="spot-dot" id="spot-dot" aria-hidden="true"></i><strong class="spot-name" id="active-group-name">—</strong></div><div class="quota-actions"><span class="refresh quota-spinner" id="quota-spinner" role="status" data-i18n-aria="refreshing" aria-label="Refreshing…" aria-busy="false" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M12.8 6a5.1 5.1 0 1 0 .1 4M12.8 2.5V6H9.2"/></svg></span><span class="pace-badge" id="quota-pace" hidden><i class="pace-dot" aria-hidden="true"></i><span id="quota-pace-text"></span></span></div></div>
-      <div class="quota-details">${['five','week'].map(name=>`<section class="quota-section" id="${name}-quota-section" data-i18n-aria="${name}" aria-label="${t(name)}"><div class="quota-row-top"><span class="quota-name">${svg(name)}<span id="${name}-quota-title" data-i18n="${name}">${t(name)}</span></span><span class="quota-meta"><span class="reset" id="${name}-countdown">—</span></span><strong id="${name}-balance">—</strong></div><div class="track quota-track" role="progressbar" data-i18n-aria="${name}" id="${name}-track"><i class="track-actual" id="${name}-fill"></i></div><div class="quota-forecast" id="${name}-forecast" hidden><span class="forecast-main" id="${name}-forecast-text"></span></div><div class="quota-usage" id="${name}-usage" hidden><span data-i18n="quotaWindowUsage">${t('quotaWindowUsage')}</span><span class="quota-usage-val" id="${name}-usage-value">—</span></div><p class="footnote" id="${name}-note" hidden></p></section>`).join('')}</div>
+      <div class="quota-details">${['five','week'].map(name=>`<section class="quota-section" id="${name}-quota-section" data-i18n-aria="${name}" aria-label="${t(name)}"><div class="quota-row-top"><span class="quota-name">${svg(name)}<span id="${name}-quota-title" data-i18n="${name}">${t(name)}</span></span><span class="quota-meta"><span class="reset" id="${name}-countdown">—</span></span><strong id="${name}-balance">—</strong></div><div class="track quota-track" role="progressbar" data-i18n-aria="${name}" id="${name}-track"><i class="track-actual" id="${name}-fill"></i><i class="track-forecast" id="${name}-projected-fill" aria-hidden="true"></i></div><div class="quota-forecast" id="${name}-forecast" hidden><span class="forecast-main" id="${name}-forecast-text"></span></div><div class="quota-usage" id="${name}-usage" hidden><span data-i18n="quotaWindowUsage">${t('quotaWindowUsage')}</span><span class="quota-usage-val" id="${name}-usage-value">—</span></div><p class="footnote" id="${name}-note" hidden></p></section>`).join('')}</div>
       <div class="quota-siblings" id="quota-siblings" hidden></div>
     </section>`);
     row.insertBefore(node,branch.nextSibling);
@@ -1320,9 +1320,17 @@ module.exports = function installAgPulseInlineWidget() {
       text(`${name}-quota-title`,heading);attribute($(`${name}-quota-section`),'aria-label',heading);attribute($(`${name}-track`),'aria-label',heading);
       const b=group?.windows?.[window],remaining=language.quotaRemaining(b),balance=b?.disabled?t('unavailableQuota'):pct(remaining);
       const forecast=language.quotaForecast(b,window,paceNow);
-      const barBg=remaining!==null&&remaining<.05?'var(--pulse-danger)':'';
+      const barBg=remaining!==null&&remaining<.05?'var(--pulse-danger)':(remaining!==null&&remaining<.2)||forecast?.willExhaust?'var(--pulse-warning)':'';
+      // Solid fill is always the real balance; the hatched tail marks what the
+      // current pace is expected to consume before the window resets.
+      const hatch=Boolean(forecast?.forecastReady&&remaining!==null&&forecast.projectedRemaining<remaining-0.005);
       text(name,balance);text(`${name}-balance`,balance);
       style($(`${name}-fill`),'width',remaining!==null?`${remaining*100}%`:'0%');style($(`${name}-fill`),'background',barBg);
+      const projEl=$(`${name}-projected-fill`);
+      if(projEl){
+        style(projEl,'left',hatch?`${forecast.projectedRemaining*100}%`:'0%');
+        style(projEl,'width',hatch?`${(remaining-forecast.projectedRemaining)*100}%`:'0%');
+      }
       const forecastEl=$(`${name}-forecast`),fTextEl=$(`${name}-forecast-text`);
       if(forecastEl&&fTextEl){
         const showF=Boolean(forecast&&typeof forecast.timeRemaining==='number');
@@ -1399,7 +1407,7 @@ module.exports = function installAgPulseInlineWidget() {
           if(valEl&&valEl.textContent!==val)valEl.textContent=val;
           if(fillEl){
             style(fillEl,'width',rem!==null?`${rem*100}%`:'0%');
-            style(fillEl,'background',rem!==null&&rem<.05?'var(--pulse-danger)':'');
+            style(fillEl,'background',rem!==null&&rem<.05?'var(--pulse-danger)':rem!==null&&rem<.2?'var(--pulse-warning)':'');
           }
           const tag=w==='5h'?'5h':t(sibArgon?'argonWeek':'weekShort');
           tipParts.push(`${tag} ${val}`);

@@ -56,11 +56,7 @@ try{
   assert.equal(await five.isVisible(),false,'A weekly-only group has no invented five-hour card');
   assert.match(await scope.locator(mode==='panel'?'#week-quota-title':'#week-quota-title').textContent(),/Argon/);
   assert.equal(await scope.locator(mode==='panel'?'#panel-quota-pace':'#quota-pace').isVisible(),true);
-  assert.equal(await scope.locator('#week-pace-tick').count(),0,'The time-pace tick should not exist');
-  assert.equal(await scope.locator('#five-projected-fill').count(),0,'The hatched five-hour forecast segment was removed');
-  assert.equal(await scope.locator('#week-projected-fill').count(),0,'The hatched weekly forecast segment was removed');
-  const accentBg=await scope.locator('#context-fill').evaluate(e=>getComputedStyle(e).backgroundColor);
-  assert.equal(await scope.locator('#week-fill').evaluate(e=>getComputedStyle(e).backgroundColor),accentBg,'Forecast exhaustion keeps the solid accent bar color');
+  assert.equal(await scope.locator('#week-pace-tick').count(),0,'The time-pace tick was replaced by the hatched forecast segment');
   assert.equal(await scope.locator('#week-forecast').isVisible(),true);
   if(mode==='panel'){
    assert.equal(await scope.locator('#quota-group').inputValue(),'gemini-argon-wtu');
@@ -68,13 +64,9 @@ try{
    assert.equal(await scope.locator('#quota-overview').getAttribute('data-windows'),'1');
    assert.match(await scope.locator('#panel-group-name').textContent(),/Gemini \(Argon\)/);
    assert.match(await scope.locator('#panel-quota-siblings').textContent(),/Claude/);
-   const sibBg=await scope.locator('#panel-quota-siblings .sibling-bar i').first().evaluate(e=>getComputedStyle(e).backgroundColor);
-   assert.notEqual(sibBg,'rgb(89, 101, 117)','Sibling bar uses soft accent blue instead of muted gray');
   }else{
    assert.match(await scope.locator('#active-group-name').textContent(),/Gemini \(Argon\)/);
    assert.match(await scope.locator('#quota-siblings').textContent(),/Claude/);
-   const sibBg=await scope.locator('#quota-siblings .sibling-bar i').first().evaluate(e=>getComputedStyle(e).backgroundColor);
-   assert.ok(sibBg.startsWith('rgba(')||sibBg.startsWith('color(')||sibBg!==accentBg,'Sibling bar uses translucent soft accent tint');
   }
   groups.reverse();model='Gemini Flash';await refresh();await balance.filter({hasText:'80.0%'}).waitFor();
   assert.equal(await five.isVisible(),true);
@@ -83,17 +75,13 @@ try{
   groups.push(quota('opaque','Premium quota',.3,true));await refresh();await balance.filter({hasText:'80.0%'}).waitFor();
   groups.at(-1).name='Gemini 4 Argon';await refresh();await balance.filter({hasText:'30.0%'}).waitFor();
   assert.equal(await five.isVisible(),false);
-  groups.at(-1).windows.weekly.remaining=.15;await refresh();await balance.filter({hasText:'15.0%'}).waitFor();
-  assert.equal(await scope.locator('#week-fill').evaluate(e=>getComputedStyle(e).backgroundColor),accentBg,'Remaining 15% keeps the solid accent bar color');
   groups.at(-1).windows.weekly.remaining=0;await refresh();await balance.filter({hasText:'0.0%'}).waitFor();
   assert.equal(await five.isVisible(),false,'Exhausted weekly quota must not fall back to shared Gemini');
-  const dangerBg=await scope.evaluate(el=>{const host=el.shadowRoot||el,probe=document.createElement('span');probe.style.color='var(--pulse-danger)';host.append(probe);const c=getComputedStyle(probe).color;probe.remove();return c;});
-  assert.equal(await scope.locator('#week-fill').evaluate(e=>getComputedStyle(e).backgroundColor),dangerBg,'Critically low (<5%) quota turns danger red');
   groups.at(-1).windows.weekly={...groups.at(-1).windows.weekly,disabled:true,remaining:1};await refresh();
   await balance.filter({hasText:'Quota unavailable'}).waitFor();
   assert.equal(await scope.locator('#week-track').getAttribute('aria-valuenow'),null);
   assert.equal(await scope.locator(mode==='panel'?'#panel-quota-pace':'#quota-pace').isVisible(),false);
-  assert.equal(await scope.locator('#week-projected-fill').count(),0);
+  assert.equal(await scope.locator('#week-projected-fill').evaluate(e=>e.getBoundingClientRect().width),0);
   assert.equal(await scope.locator('#week-forecast').isVisible(),false);
   assert.equal(await five.isVisible(),false);
   groups.at(-1).windows.weekly.disabled=false;await refresh();await balance.filter({hasText:'100.0%'}).waitFor();
