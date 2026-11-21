@@ -1,16 +1,27 @@
-# AGY Context Dashboard (Antigrative Dashboard) v0.9.5
+# AGY Context Dashboard v0.9.7
 
-Release `v0.9.5` for [`wycocoyu/agy-context-dashboard`](https://github.com/wycocoyu/agy-context-dashboard) under the MIT License, merging upstream `v0.9.2`–`v0.9.5` memory optimizations and Windows/Linux shortcut self-healing with **hardened default-on Antigravity Desktop `2.33.0+` auto-relaunch recovery** ([`#19`](https://github.com/wycocoyu/agy-context-dashboard/issues/19), [`#20`](https://github.com/wycocoyu/agy-context-dashboard/pull/20)) while retaining every fork capability (`Gemini 4` / `GPT-6.1 Sol` / `Claude 4.5–5.5`, macOS `language_server.native`, `agy 1.5.x` CLI `statusLine`, and IDE `2.6.0`).
+`wycocoyu/agy-context-dashboard` `v0.9.7`（MIT 协议）新增**非侵入式更新提醒**：有新版本时自动亮绿点与版本徽标，不打断对话、不再需要手动打开检查更新，同时在 IDE Trusted Types 下修复 GitHub 仓库图标渲染（[`#32`](https://github.com/wycocoyu/agy-context-dashboard/issues/32)）。
 
-## What changed in v0.9.5
+## 更新内容
 
-- **Default-on `autoRelaunchDebug` recovery with startup-window & loop-breaker guards (`sidecars/panel/main.mjs`, `sidecars/panel/app.js`, `compat/debug-relaunch.mjs`, [`#19`](https://github.com/wycocoyu/agy-context-dashboard/issues/19)):** Active inline installs now enable automatic debug-port recovery by default (opt-out via the Side Panel checkbox). Auto-relaunch runs at most once per sidecar within the first `20s` of startup (never interrupting active conversations later), allows up to `2` distinct-PID auto-relaunches per `60s` sliding window (`>= 5s` interval) so immediate launch-then-update flows auto-recover cleanly while capping loops, and ignores `--headless` processes.
-- **Upstream `v0.9.2`–`v0.9.5` launch self-healing & major memory/CPU savings (`compat/launch_config.py`, `compat/launch-config.mjs`, `sidecars/panel/`, `ide/`):** Automatically configures user-owned Windows `.lnk` shortcuts and Linux `.desktop` entries with `--remote-debugging-port=0 --remote-debugging-address=127.0.0.1` during install and sidecar ticks (with clean rollback on `uninstall` or `--panel-only`); adds `inspectHostArchive` diagnostics; switches historical usage backfill to metadata-only RPCs (`GetCascadeTrajectoryGeneratorMetadata`), `256 KiB` tail log discovery, `2 MiB` chunked SDK extraction, shared trajectory caches, and `--max-old-space-size=192`; and absorbs `v0.9.3`–`v0.9.4` Windows CI stabilization.
-- **Top-of-README notice (`README.md`, `README.en.md`, `COMPATIBILITY.md`):** Clearly explains Antigravity `2.33.0+` debug-port constraints, shortcut self-healing, default-on post-update recovery, optional `Antigravity (Debug)` launcher (`--with-launcher`), and Side Panel controls right at the top of both READMEs.
+- **非侵入更新提醒（[`#32`](https://github.com/wycocoyu/agy-context-dashboard/issues/32)）**：后台静默检查新版本（启动时 + 每 `6` 小时，与手动检查互斥去重）；有新版本时，内嵌栏上下文胶囊右上角亮绿点（纯图标模式依旧可见）并在悬停提示中附带目标版本号；详情弹窗的「检查更新」旁显示绿色 `v{最新版}` 徽标，已是最新时自动隐藏，完整保留手动「重新检查」与「更新」按钮。
+- **更新说明排版升级**：发布说明以圆点列表呈现，中英文混排按字宽智能截断，附「完整说明 ↗」跳转 GitHub Release。
+- **GitHub 仓库图标修复**：页脚仓库链接 SVG 强制 `stroke: none`，在 IDE Trusted Types 环境下正常渲染。
+
+## 安装或更新
+
+- **Antigravity 桌面 App**：上下文详情 → **检查更新**（`v0.8.14+`），或解压 `antigrative-dashboard-0.9.7.zip` 后运行 `python3 manage.py install`（Windows 用 `python`）。
+- **Antigravity CLI / 独立 IDE**：CLI 运行 `python3 manage.py install-cli`；IDE 安装 `antigrative-dashboard-ide-0.9.7.vsix`。现有配置与统计自动保留。
+
+---
+
+## What changed in v0.9.7
+
+- **Non-intrusive update badges ([`#32`](https://github.com/wycocoyu/agy-context-dashboard/issues/32)):** Passive release checks (boot + every `6h`, deduped with manual checks) light a green dot on the inline context chip (visible in icons-only mode) with the target version in the tooltip, and a green `v{latest}` badge beside **Check for updates** in the dialog — hidden automatically when already current, with manual **Re-check** and **Update** actions preserved.
+- **Release notes rendering:** Bulleted notes with CJK-aware clipping and a "Full notes ↗" link to the GitHub release.
+- **Trusted Types-safe repo SVG:** Force `stroke: none` on the footer GitHub mark so it renders inside the IDE.
 
 ## Install or update
 
-- **Antigravity App:** open context details → **Check for updates** (available from `v0.8.14` onward). Alternatively, extract `antigrative-dashboard-0.9.5.zip` and run `python3 manage.py install` (Windows: `python manage.py install`; add `--with-launcher` on macOS for a zero-relaunch Dock app and `--with-cli` to sync CLI `statusLine`).
-- **Antigravity CLI (`statusLine`):** run `python3 manage.py install-cli` (Windows: `python`; or `--with-cli` with Desktop install), then reopen `agy`.
-- **Standalone Antigravity IDE:** install `antigrative-dashboard-ide-0.9.5.vsix` using **Install from VSIX…**. This is separate from the App installer.
-- Existing settings, language choices, `history-v1` and `usage-v1` are preserved. SHA-256 checksum files accompany both packages.
+- **Antigravity App:** Open context details → **Check for updates** (`v0.8.14+`), or extract `antigrative-dashboard-0.9.7.zip` and run `python3 manage.py install` (`python` on Windows).
+- **Antigravity CLI / Standalone IDE:** Run `python3 manage.py install-cli` for CLI `statusLine`, or install `antigrative-dashboard-ide-0.9.7.vsix` via **Install from VSIX…**. Settings, history, and SHA-256 verification remain intact.

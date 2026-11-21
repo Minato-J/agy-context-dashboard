@@ -1,15 +1,15 @@
 <div align="center">
 
-<img src="docs/assets/hero-zh.png?v=0.8.0" width="100%" alt="Antigrative Dashboard：最新版速度、缓存和上下文控件，就在输入框旁。">
+<img src="docs/assets/hero-zh.png?v=0.9.7" width="100%" alt="Antigrative Dashboard：最新版速度、缓存和上下文控件，就在输入框旁。">
 
 # AGY Context Dashboard (Antigrative Dashboard)
 
 参考 DSH 设计的 Antigravity (`agy`) 上下文窗口、Token 速率、缓存命中率与额度仪表盘；悬停上下文，一并查看上下文、5 小时和周额度详情。<br>
 缩略信息常驻；鼠标悬停，才展开详细统计。
 
-[![Version 0.9.5](https://img.shields.io/badge/version-0.9.5-91adff?style=flat-square&labelColor=252936)](CHANGELOG.md)
+[![Version 0.9.7](https://img.shields.io/badge/version-0.9.7-91adff?style=flat-square&labelColor=252936)](CHANGELOG.md)
 [![Platforms](https://img.shields.io/badge/host-Windows%20%7C%20Linux%20%7C%20macOS-83d8b9?style=flat-square&labelColor=252936)](COMPATIBILITY.md)
-[![Antigravity 2.21.1 / 2.22.0 / 2.33.0+](https://img.shields.io/badge/Antigravity-2.21.1%20%2F%202.33.0%2B-c5a0ff?style=flat-square&labelColor=252936)](COMPATIBILITY.md)
+[![Antigravity 2.21.1 / 2.33.0+ / 2.34.0+](https://img.shields.io/badge/Antigravity-2.21.1%20%2F%202.33.0%2B%20%2F%202.34.0%2B-c5a0ff?style=flat-square&labelColor=252936)](COMPATIBILITY.md)
 [![MIT](https://img.shields.io/badge/license-MIT-d4d9e6?style=flat-square&labelColor=252936)](LICENSE)
 
 [看看效果](#看看效果) · [IDE](#antigravity-ide) · [CLI](#antigravity-cli-状态栏) · [开始安装](#安装) · [启用与停用](#可插拔) · [配套侧边栏](#配套侧边栏) · [兼容性](#兼容性) · [常见问题](#常见问题) · [English](README.en.md)
@@ -17,32 +17,33 @@
 </div>
 
 > [!IMPORTANT]
-> **Antigravity Desktop `2.33.0+` 启动与更新后自动注入说明（[`#19`](https://github.com/wycocoyu/agy-context-dashboard/issues/19)、[`#17`](https://github.com/wycocoyu/agy-context-dashboard/issues/17)）**
+> **Antigravity Desktop `2.33.0+` / `2.34.0+` 兼容、启动与更新后自动注入说明（`v0.9.6`，[`#19`](https://github.com/wycocoyu/agy-context-dashboard/issues/19)、[`#17`](https://github.com/wycocoyu/agy-context-dashboard/issues/17)）**
 >
-> - **为什么 `2.33.0+` 原版默认没有调试端口**：Antigravity `2.33.0` 将 `--remote-debugging-port` 改为命令行显式开关，无参启动会主动删除 `<profile>/DevToolsActivePort`；应用内自动更新（`quitAndInstall()`）重启后同样会丢弃命令行参数；同时 `app.asar` 受 `ElectronAsarIntegrity` 与代码签名保护，本插件不篡改应用包。
+> - **`2.34.0+` 凭据机制变更与 `v0.9.6` 自动兼容**：Antigravity `2.34.0` 移除了 `language_server` 命令行参数上的 `--csrf_token`，改用环境变量传入并将 `{ pid, httpsPort, httpPort, lsVersion, csrfToken }` 写入 `~/.gemini/<appDataDir>/daemon/*.json`。**`v0.9.6`** 起已自动兼容该 daemon 凭据机制（按 PID 与实时监听端口双校验，同时兼容 `<= 2.33.x`）。若此前更新到 `2.34.0` 后出现「当前版本未提供可用的本地检测凭据」，升级到 `v0.9.6` 即可恢复。
+> - **为什么 `2.33.0+` 原版默认没有调试端口**：Antigravity `2.33.0+` 将 `--remote-debugging-port` 改为命令行显式开关，无参启动会主动删除 `<profile>/DevToolsActivePort`；应用内自动更新（`quitAndInstall()`）重启后同样会丢弃命令行参数；同时 `app.asar` 受 `ElectronAsarIntegrity` 与代码签名保护，本插件不篡改应用包。
 > - **Windows / Linux 快捷方式直启自愈**：执行 `manage.py install`（非 `--panel-only`）以及后台 Sidecar 运行时会自动为 Windows 用户 `.lnk` 快捷方式和 Linux `.desktop` 入口写入 `--remote-debugging-port=0 --remote-debugging-address=127.0.0.1`（并在卸载或 `--panel-only` 时干净撤回），日常点原图标即可一次直启、零重开注入。
-> - **`v0.9.5` 默认开启启动期自动重拉恢复（涵盖 macOS 点原图标打开与三端更新重启后）**：内嵌模式下默认启用 `autoRelaunchDebug`。当插件在 Sidecar 启动后前 `20` 秒内检测到缺少调试端口（如 macOS 直接点原版图标，或三端应用内更新重启丢参后），会自动温和重拉一次带调试参数的宿主并恢复状态栏；同一组 PID 永不重复，不同 PID 在 `60` 秒滑窗内最多允许 `2` 次（间距 `>= 5` 秒，防循环熔断），超过启动 `20` 秒绝不在对话途中杀窗。
+> - **`v0.9.5+` 默认开启启动期自动重拉恢复（涵盖 macOS 点原图标打开与三端更新重启后）**：内嵌模式下默认启用 `autoRelaunchDebug`。当插件在 Sidecar 启动后前 `20` 秒内检测到缺少调试端口（如 macOS 直接点原版图标，或三端应用内更新重启丢参后），会自动温和重拉一次带调试参数的宿主并恢复状态栏；同一组 PID 永不重复，不同 PID 在 `60` 秒滑窗内最多允许 `2` 次（间距 `>= 5` 秒，防循环熔断），超过启动 `20` 秒绝不在对话途中杀窗。
 > - **可选零二次重启直启与关闭开关**：macOS 日常使用通过 `python3 manage.py install --with-launcher` 生成的 `~/Applications/Antigravity (Debug).app`（或终端 `python3 manage.py launch`）打开即可零重开秒注入；如需关闭自动重拉，在官方侧边栏（**＋ → Extensions → Antigrative Dashboard**）取消勾选「缺少调试端口时自动重启恢复（如更新后）」即可。
 
-**v0.9.5：** 合并上游 `v0.9.2`–`v0.9.5` 重大性能优化与快捷方式自愈（仅元数据历史补录、`192 MiB` 内存上限、`256 KiB` 尾部读日志、`inspectHostArchive` 检测、Windows `.lnk` 与 Linux `.desktop` 启动参数自愈及 Windows CI 防抖），同时将 **Antigravity Desktop `2.33.0+`** 内嵌模式的自动重拉恢复（`autoRelaunchDebug`）改为**默认开启（启动 `20` 秒窗单次自愈 + `60` 秒滑窗防环）**并在 README 顶部置顶说明（[`#19`](https://github.com/wycocoyu/agy-context-dashboard/issues/19)、[`#20`](https://github.com/wycocoyu/agy-context-dashboard/pull/20)），完整保留 `v0.9.2` 调试启动器、`v0.9.1` 额度预测、`IDE 2.6.0`、`Gemini 4` / `GPT-6.1 Sol` / `Claude 4.5–5.5` 与 `agy 1.5.x` CLI 全部能力。[发布说明](https://github.com/wycocoyu/agy-context-dashboard/releases/tag/v0.9.5) · [变更记录](CHANGELOG.md)。
+**v0.9.7：** 新增**非侵入式更新提醒**（[`#32`](https://github.com/wycocoyu/agy-context-dashboard/issues/32)）：后台静默检查新版本（启动时 + 每 `6` 小时），有新版本时内嵌栏上下文胶囊亮绿点（纯图标模式依旧可见）、详情弹窗「检查更新」旁附绿色版本徽标，已是最新自动隐藏，不打断对话；更新说明改为圆点列表并附「完整说明 ↗」直达 Release，同时修复 IDE Trusted Types 下 GitHub 仓库图标渲染。完整保留 `v0.9.6` `2.34.0+` daemon 凭据兼容、`v0.9.5` 默认 `autoRelaunchDebug` 恢复、`v0.9.2` 调试启动器、`IDE 2.6.0`、`Gemini 4` / `GPT-6.1 Sol` / `Claude 4.5–5.5` 与 `agy 1.5.x` CLI 全部能力。[发布说明](https://github.com/wycocoyu/agy-context-dashboard/releases/tag/v0.9.7) · [变更记录](CHANGELOG.md)。
 
 ## 看看效果
 
-<img src="docs/assets/responsive-zh.png?v=0.8.0" width="100%" alt="最新版主对话窄窗口三图标布局，以及子代理输入框旁的独立统计。">
+<img src="docs/assets/responsive-zh.png?v=0.9.7" width="100%" alt="最新版主对话窄窗口三图标布局，以及子代理输入框旁的独立统计。">
 
 <table>
 <tr><th width="50%">生成速度与缓存</th><th width="50%">上下文与共享额度</th></tr>
 <tr>
-<td width="50%" valign="top"><img src="docs/assets/speed-zh.png?v=0.8.0" width="100%" alt="最新版生成速度详情卡"><br><img src="docs/assets/widget-zh.png?v=0.8.0" width="100%" alt="最新版 Token 用量与缓存详情卡"></td>
-<td width="50%" valign="top"><img src="docs/assets/context-zh.png?v=0.8.0" width="100%" alt="最新版上下文、5h 和周额度详情，以及持久化语言切换入口"></td>
+<td width="50%" valign="top"><img src="docs/assets/speed-zh.png?v=0.9.7" width="100%" alt="最新版生成速度详情卡"><br><img src="docs/assets/widget-zh.png?v=0.9.7" width="100%" alt="最新版 Token 用量与缓存详情卡"></td>
+<td width="50%" valign="top"><img src="docs/assets/context-zh.png?v=0.9.7" width="100%" alt="最新版上下文、5h 和周额度详情，以及持久化语言切换入口"></td>
 </tr>
 </table>
 
 <table>
 <tr><th width="50%">每日 / 每周活动</th><th width="50%">按模型统计用量</th></tr>
 <tr>
-<td width="50%"><img src="docs/assets/usage-overview-zh.png?v=0.8.0" width="100%" alt="最新版 Token 用量活动概览，支持每日和每周贡献图"></td>
-<td width="50%"><img src="docs/assets/usage-details-zh.png?v=0.8.0" width="100%" alt="最新版模型用量柱状图，支持天周月切换和主题配色"></td>
+<td width="50%"><img src="docs/assets/usage-overview-zh.png?v=0.9.7" width="100%" alt="最新版 Token 用量活动概览，支持每日和每周贡献图"></td>
+<td width="50%"><img src="docs/assets/usage-details-zh.png?v=0.9.7" width="100%" alt="最新版模型用量柱状图，支持天周月切换和主题配色"></td>
 </tr>
 </table>
 
@@ -72,7 +73,7 @@
 ## Antigravity IDE
 
 **v0.7.0** 新增反重力自己的独立 IDE 适配。下载发布页的
-`antigrative-dashboard-ide-0.9.5.vsix`，在 IDE 扩展页选择「从 VSIX 安装」。
+`antigrative-dashboard-ide-0.9.7.vsix`，在 IDE 扩展页选择「从 VSIX 安装」。
 仅安装 IDE 的用户也可以使用，无需先装桌面 App。
 
 完全退出 IDE 后，使用带

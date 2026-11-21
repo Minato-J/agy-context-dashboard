@@ -56,7 +56,7 @@ try{
       await page.goto(`${base}/composer?lang=${lang}`);
       const strip=page.locator('#ag-pulse-status-bar');await strip.waitFor();
       await page.waitForFunction(()=>document.getElementById('ag-pulse-status-bar')?.shadowRoot.getElementById('tps').textContent!=='—');
-      assert.match(await strip.locator('#cache-rate').textContent(),/83\.8%/,'Use real-size cached token statistics, not placeholder widths');
+      assert.match(await strip.locator('#cache-detail-rate').textContent(),/83\.8%/,'Use real-size cached token statistics, not placeholder widths');
       const original='flex:0 0 auto;min-width:123px';
       assert.equal(await page.locator('.model-branch').getAttribute('style'),original,'Mount must preserve the original host styles');
       for(const width of [1100,700,450,300,1100]){

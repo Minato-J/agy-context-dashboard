@@ -42,7 +42,7 @@ async function verifyCurrent(page,generation){
  await widget.locator('[data-card=context]').click();await widget.locator('#context-card').waitFor({state:'visible'});
  assert.equal(await widget.locator('#context-percent').textContent(),'4%');await page.keyboard.press('Escape');
  await widget.locator('[data-card=cache]').click();await widget.locator('#cache-card').waitFor({state:'visible'});
- assert.equal(await widget.locator('#cache-rate').textContent(),'75.0%');
+ assert.equal(await widget.locator('#cache-detail-rate').textContent(),'75.0%');
  assert.equal(await widget.locator('#usage-open-label').textContent(),'查看用量统计');
  await widget.locator('#open-usage').click();await widget.locator('#usage-dashboard').waitFor({state:'visible'});
  await page.keyboard.press('Escape');

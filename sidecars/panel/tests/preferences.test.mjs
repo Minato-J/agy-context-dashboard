@@ -35,13 +35,13 @@ test('guide dismissal survives a fresh backend without selecting a language; old
 });
 
 test('Chinese and English survive a new backend and a renderer with empty origin storage',async t=>{
-  const {file,store}=await fixture(t);assert.deepEqual(await store.get(),{language:null,languageGuideDismissed:false,usageGuideDismissed:false,speedStyle:null,revision:0});
+  const {file,store}=await fixture(t);assert.deepEqual(await store.get(),{language:null,languageGuideDismissed:false,usageGuideDismissed:false,speedStyle:null,quotaDisplay:null,revision:0});
   const first=create(null),controller=connect(first,store);await controller.ready;await controller.toggle();
   assert.equal(first.language,'zh-CN');controller.dispose();
   const afterRestart=create(null),restored=connect(afterRestart,new PreferencesStore({file}));await restored.ready;
   assert.equal(afterRestart.language,'zh-CN');await restored.toggle();restored.dispose();
   const again=create(null);await connect(again,new PreferencesStore({file})).ready;assert.equal(again.language,'en');
-  const json=JSON.parse(await readFile(file,'utf8'));assert.deepEqual(Object.keys(json).sort(),['language','languageGuideDismissed','revision','schema','speedStyle','usageGuideDismissed']);
+  const json=JSON.parse(await readFile(file,'utf8'));assert.deepEqual(Object.keys(json).sort(),['language','languageGuideDismissed','quotaDisplay','revision','schema','speedStyle','usageGuideDismissed']);
 });
 
 test('usage onboarding completion persists independently of language and language onboarding',async t=>{

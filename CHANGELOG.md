@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.9.7 — 2026-11-20
+
+- **Non-intrusive update availability badges (`sidecars/panel/updater.mjs`, `sidecars/panel/main.mjs`, `compat/inline-widget.cjs`, `compat/update-ui.cjs`, [`#32`](https://github.com/wycocoyu/agy-context-dashboard/issues/32)):**
+  - Add `checkPassive()` (boot + every `6h`, shared dedupe with manual checks and a `6h` minimum interval) so the sidecar learns about new releases without opening the update dialog; results surface through `metrics` as a passive summary and clear automatically once installed or when the user checks manually.
+  - Show a green dot on the inline context chip while an update is available (still visible in icons-only mode), append the target version to the chip tooltip, and re-render live when update state changes.
+  - Show a green `v{latest}` badge beside **Check for updates** in the details dialog, hidden automatically when the plugin is already current, while keeping the manual **Re-check** and **Update** actions intact.
+  - Render dialog release notes as a bulleted list with CJK-aware weight clipping and a "Full notes ↗" link to the GitHub release.
+- **Trusted Types-safe GitHub repo SVG (`compat/inline-widget.cjs`):** Force `stroke: none; stroke-width: 0` on the footer repo link SVG so the GitHub mark renders under the IDE's Trusted Types / SVG styling constraints.
+
+## 0.9.6 — 2026-11-20
+
+- **Antigravity Desktop `2.34.0+` daemon CSRF credential discovery (`sidecars/panel/discovery.mjs`, `sidecars/panel/client.mjs`, `ide/client.mjs`):**
+  - Antigravity `2.34.0` removes `--csrf_token` from `language_server` command-line arguments and writes user-only metadata (`{ pid, httpsPort, httpPort, lsVersion, csrfToken }`) under `~/.gemini/<appDataDir>/daemon/*.json`. Add `resolveDaemonCredential` to fall back to PID-matched, live-port-verified daemon metadata whenever `--csrf_token` is omitted from process args, preserving full backward compatibility with `<= 2.33.x`.
+- **Sync upstream `v0.9.9`–`v0.9.10` discovery hardening & context UI enhancements (`compat/i18n.cjs`, `compat/inline-widget.cjs`, `sidecars/panel/{app.js,index.html,styles.css,discovery.mjs,client.mjs}`, `ide/{discovery.mjs,client.mjs}`):**
+  - Add context compaction count badges (`🗜 {n}×` / `🗜 {n} 次`) on the inline context card, native sidecar panel, and chip/tab tooltips when `transcriptStats.compactionMarkers > 0`, plus `>= 75%` warning and `>= 90%` danger colors on the context ring and progress bar.
+  - Fix `localize()` so dynamic `[data-card]` chip titles survive polling, dispose `speedStyle` on sidecar `pagehide`, deduplicate global quota errors into a single `#quota-error` banner, verify cached server PID liveness + loopback port reachability (`verifyCachedServer`) before rescanning processes after the 15s lease expires, and sanitize discovery command errors across `zh-CN` / `zh-TW` / `en`.
+
 ## 0.9.5 — 2026-11-18
 
 - **Merge upstream `v0.9.2`–`v0.9.5` optimizations & shortcut self-healing (`compat/launch_config.py`, `compat/launch-config.mjs`, `sidecars/panel/`, `ide/`):**

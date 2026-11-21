@@ -59,7 +59,7 @@ try{
    await expectPane('main-pane','50.0','12%');
    await expectMetrics('90.0','87%');
    assert.equal(await auxStrip.getAttribute('data-scope'),'subagent');
-   assert.equal(await auxStrip.locator('#cache-rate').textContent(),'60.0%');
+   assert.equal(await auxStrip.locator('#cache-detail-rate').textContent(),'60.0%');
    assert.equal(await page.evaluate(()=>location.pathname),'/c/'+ids.main,'Sidebar does not navigate the main route');
    assert.equal(await bars.count(),2,'Focusing sidebar keeps both strips mounted');
    const settle=()=>page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));

@@ -1,15 +1,15 @@
 <div align="center">
 
-<img src="docs/assets/hero.png?v=0.8.0" width="100%" alt="Antigrative Dashboard v0.8.0: current speed, cache and context controls beside the input.">
+<img src="docs/assets/hero.png?v=0.9.7" width="100%" alt="Antigrative Dashboard v0.8.0: current speed, cache and context controls beside the input.">
 
 # Agy Context Dashboard (Antigrative Dashboard)
 
 DSH-style Antigravity (`agy`) context window, token throughput, cache hit, and quota dashboard in the model selector row. Hover over context for five-hour and weekly quotas too.<br>
 Keep the summary visible. Hover for the details.
 
-[![Version 0.9.5](https://img.shields.io/badge/version-0.9.5-91adff?style=flat-square&labelColor=252936)](CHANGELOG.md)
+[![Version 0.9.7](https://img.shields.io/badge/version-0.9.7-91adff?style=flat-square&labelColor=252936)](CHANGELOG.md)
 [![Platforms](https://img.shields.io/badge/host-Windows%20%7C%20Linux%20%7C%20macOS-83d8b9?style=flat-square&labelColor=252936)](COMPATIBILITY.md)
-[![Antigravity 2.21.1 / 2.22.0 / 2.33.0+](https://img.shields.io/badge/Antigravity-2.21.1%20%2F%202.33.0%2B-c5a0ff?style=flat-square&labelColor=252936)](COMPATIBILITY.md)
+[![Antigravity 2.21.1 / 2.33.0+ / 2.34.0+](https://img.shields.io/badge/Antigravity-2.21.1%20%2F%202.33.0%2B%20%2F%202.34.0%2B-c5a0ff?style=flat-square&labelColor=252936)](COMPATIBILITY.md)
 [![MIT](https://img.shields.io/badge/license-MIT-d4d9e6?style=flat-square&labelColor=252936)](LICENSE)
 
 [Preview](#preview) · [IDE](#antigravity-ide) · [CLI](#antigravity-cli-status-line) · [Install](#install) · [Enable or remove](#plug-and-unplug) · [Companion Sidebar](#companion-sidebar) · [Compatibility](#compatibility) · [FAQ](#faq) · [中文](README.md)
@@ -17,31 +17,32 @@ Keep the summary visible. Hover for the details.
 </div>
 
 > [!IMPORTANT]
-> **Antigravity Desktop `2.33.0+` Startup & Post-Update Auto-Injection Note ([`#19`](https://github.com/wycocoyu/agy-context-dashboard/issues/19), [`#17`](https://github.com/wycocoyu/agy-context-dashboard/issues/17))**
+> **Antigravity Desktop `2.33.0+` / `2.34.0+` Compatibility, Startup & Post-Update Auto-Injection Note (`v0.9.6`, [`#19`](https://github.com/wycocoyu/agy-context-dashboard/issues/19), [`#17`](https://github.com/wycocoyu/agy-context-dashboard/issues/17))**
 >
+> - **`2.34.0+` CSRF credential migration (`v0.9.6`)**: Antigravity `2.34.0` removes `--csrf_token` from `language_server` command-line arguments and writes `{ pid, httpsPort, httpPort, lsVersion, csrfToken }` into `~/.gemini/<appDataDir>/daemon/*.json`. **`v0.9.6`** automatically falls back to PID-matched, live-port-verified daemon metadata while staying compatible with `<= 2.33.x`. If you saw `"Local metrics credentials are unavailable in this version"` after updating to `2.34.0`, update to `v0.9.6`.
 > - **Why `2.33.0+` drops the debugging port**: Starting in Antigravity `2.33.0`, `--remote-debugging-port` is CLI opt-in only and `<profile>/DevToolsActivePort` is deleted when absent; in-app updates (`quitAndInstall()`) also drop CLI flags on restart; and `app.asar` is sealed by `ElectronAsarIntegrity` and Hardened Runtime signing, so this plugin leaves `app.asar` untouched.
-> - **Dual recovery in `v0.9.5` (shortcut self-healing + default-on `autoRelaunchDebug`)**: On Windows (`.lnk`) and Linux (`.desktop`), the dashboard syncs debug flags into user-owned desktop shortcuts automatically; on macOS Dock launches and after in-app `quitAndInstall()` restarts without flags, **`autoRelaunchDebug` stays enabled by default (opt-out)** and triggers only during the **first 20s of sidecar startup** (max 1 auto-relaunch per sidecar, guarded by a **60s sliding window allowing up to 2 distinct-PID relaunches at least 5s apart** plus same-PID dedupe).
+> - **Dual recovery in `v0.9.5+` (shortcut self-healing + default-on `autoRelaunchDebug`)**: On Windows (`.lnk`) and Linux (`.desktop`), the dashboard syncs debug flags into user-owned desktop shortcuts automatically; on macOS Dock launches and after in-app `quitAndInstall()` restarts without flags, **`autoRelaunchDebug` stays enabled by default (opt-out)** and triggers only during the **first 20s of sidecar startup** (max 1 auto-relaunch per sidecar, guarded by a **60s sliding window allowing up to 2 distinct-PID relaunches at least 5s apart** plus same-PID dedupe).
 > - **Zero-relaunch launcher & opt-out control**: Use the generated debug launcher (`manage.py install --with-launcher`: `~/Applications/Antigravity (Debug).app` on macOS, `%LOCALAPPDATA%\AntigravityPulse\Launch Antigravity (Debug).cmd` on Windows, `~/.local/share/applications/antigravity-pulse-debug.desktop` on Linux) to start with zero extra restarts, or uncheck **Auto-relaunch when debug port is missing** in the official Side Panel (**+ → Extensions → Antigrative Dashboard**) to persist `autoRelaunchDebug: false`.
 
-**v0.9.5:** Fuse upstream `v0.9.2`–`v0.9.5` improvements (Windows `.lnk` / Linux `.desktop` shortcut self-healing, metadata-only historical usage backfill, `256 KiB` tail log reads, `2 MiB` chunked SDK scans, and `--max-old-space-size=192`) with [`#19`](https://github.com/wycocoyu/agy-context-dashboard/issues/19) hardened **default-on `autoRelaunchDebug` recovery** (20s startup window, max 1 auto-relaunch per sidecar, 60s 2-try sliding window with `>=5s` spacing, and `--headless` helper exclusion), while retaining all `v0.9.2` debug launchers and `Gemini 4` / `GPT-6.1 Sol` / `Claude 4.5–5.5`, macOS `language_server.native` discovery, and `agy 1.5.x` CLI features. [Release notes](https://github.com/wycocoyu/agy-context-dashboard/releases/tag/v0.9.5) · [Changelog](CHANGELOG.md).
+**v0.9.7:** Add **non-intrusive update availability badges** ([`#32`](https://github.com/wycocoyu/agy-context-dashboard/issues/32)): passive release checks (boot + every `6h`) light a green dot on the inline context chip (visible in icons-only mode) with the target version in the tooltip, and a green `v{latest}` badge beside **Check for updates** in the dialog — hidden automatically when already current, so checking no longer interrupts the conversation; release notes render as a bulleted list with a "Full notes ↗" link, and the GitHub repo SVG now renders under IDE Trusted Types. Retains `v0.9.6` `2.34.0+` daemon credential compatibility, `v0.9.5` default-on `autoRelaunchDebug` recovery, `v0.9.2` debug launchers, `Gemini 4` / `GPT-6.1 Sol` / `Claude 4.5–5.5`, macOS `language_server.native` discovery, and `agy 1.5.x` CLI features. [Release notes](https://github.com/wycocoyu/agy-context-dashboard/releases/tag/v0.9.7) · [Changelog](CHANGELOG.md).
 
 ## Preview
 
-<img src="docs/assets/responsive.png?v=0.8.0" width="100%" alt="Current three-icon layout in a narrow main chat and separate statistics beside a subagent input.">
+<img src="docs/assets/responsive.png?v=0.9.7" width="100%" alt="Current three-icon layout in a narrow main chat and separate statistics beside a subagent input.">
 
 <table>
 <tr><th width="50%">Speed and cache</th><th width="50%">Context and shared quotas</th></tr>
 <tr>
-<td width="50%" valign="top"><img src="docs/assets/speed.png?v=0.8.0" width="100%" alt="Current generation speed detail card"><br><img src="docs/assets/widget.png?v=0.8.0" width="100%" alt="Current token usage and cache detail card"></td>
-<td width="50%" valign="top"><img src="docs/assets/context.png?v=0.8.0" width="100%" alt="Current context, five-hour and weekly quota details, with the saved-language control"></td>
+<td width="50%" valign="top"><img src="docs/assets/speed.png?v=0.9.7" width="100%" alt="Current generation speed detail card"><br><img src="docs/assets/widget.png?v=0.9.7" width="100%" alt="Current token usage and cache detail card"></td>
+<td width="50%" valign="top"><img src="docs/assets/context.png?v=0.9.7" width="100%" alt="Current context, five-hour and weekly quota details, with the saved-language control"></td>
 </tr>
 </table>
 
 <table>
 <tr><th width="50%">Daily and weekly activity</th><th width="50%">Usage by model</th></tr>
 <tr>
-<td width="50%"><img src="docs/assets/usage-overview.png?v=0.8.0" width="100%" alt="Current Token usage activity with daily and weekly contribution grids"></td>
-<td width="50%"><img src="docs/assets/usage-details.png?v=0.8.0" width="100%" alt="Current model usage chart with day, week and month controls and theme-adapted colors"></td>
+<td width="50%"><img src="docs/assets/usage-overview.png?v=0.9.7" width="100%" alt="Current Token usage activity with daily and weekly contribution grids"></td>
+<td width="50%"><img src="docs/assets/usage-details.png?v=0.9.7" width="100%" alt="Current model usage chart with day, week and month controls and theme-adapted colors"></td>
 </tr>
 </table>
 
@@ -75,7 +76,7 @@ Keep the summary visible. Hover for the details.
 ## Antigravity IDE
 
 **v0.7.0** adds a separate VSIX for Google's own standalone IDE. Download
-`antigrative-dashboard-ide-0.9.5.vsix` from the release and choose **Install from VSIX…**
+`antigrative-dashboard-ide-0.9.7.vsix` from the release and choose **Install from VSIX…**
 in the IDE's Extensions view. No desktop App installation is required.
 
 Fully quit the IDE, then start it with

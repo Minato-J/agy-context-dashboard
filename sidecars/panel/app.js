@@ -323,14 +323,25 @@ function render() {
   cacheAttr('aria-label',currentOnly?t('taskCurrentOnly'):null);
   cacheAttr('title',currentOnly?t('taskCurrentOnly'):null);
   const context=speed?.context,hasCapacity=typeof context?.usedFraction==='number';
+  const transcript=speed?.transcriptStats;
+  const compactions=transcript&&['ready','partial'].includes(transcript.status)&&typeof transcript.compactionMarkers==='number'?transcript.compactionMarkers:null;
+  const compSuffix=compactions!==null&&compactions>0?` · 🗜 ${t('contextCompactionCount',{n:compactions})}`:'';
   $('strip-context').textContent=hasCapacity?`${Math.round(context.usedFraction*100)}%`:'—';
   $('strip-context-size').textContent=context?`${compact(context.usedTokens)} / ${context.maxTokens===null?'—':compact(context.maxTokens)}`:'—';
-  $('context-tab').title=context?t('contextTokens',{used:count(context.usedTokens),max:context.maxTokens===null?'—':count(context.maxTokens)}):t('contextUnknown');
+  $('context-tab').title=(context?t('contextTokens',{used:count(context.usedTokens),max:context.maxTokens===null?'—':count(context.maxTokens)}):t('contextUnknown'))+compSuffix;
   $('context-summary').textContent=hasCapacity?t('contextUsed',{used:Math.round(context.usedFraction*100),remaining:Math.round(context.remainingFraction*100)}):t('contextUnknown');
   $('context-tokens').textContent=context?t('contextTokens',{used:compact(context.usedTokens),max:context.maxTokens===null?'—':compact(context.maxTokens)}):'—';
   $('context-model').textContent=context?.model||'—';
+  const compactionPill=$('context-compaction-pill');
+  if(compactionPill){
+    hidden('context-compaction-pill',!(compactions!==null&&compactions>0));
+    if(compactions!==null&&compactions>0){
+      compactionPill.textContent=`🗜 ${t('contextCompactionCount',{n:compactions})}`;
+      compactionPill.title=t('contextCompactionsTitle',{n:compactions});
+    }
+  }
   $('context-fill').style.width=hasCapacity?`${Math.min(1,context.usedFraction)*100}%`:'0%';
-  $('context-fill').style.background=hasCapacity&&context.usedFraction>=.9?'var(--pulse-danger)':'';
+  $('context-fill').style.background=hasCapacity&&context.usedFraction>=.9?'var(--pulse-danger)':hasCapacity&&context.usedFraction>=.75?'var(--pulse-warning)':'';
   if(hasCapacity){$('context-track').setAttribute('aria-valuenow',String(Math.min(100,context.usedFraction*100)));$('context-track').setAttribute('aria-valuemin','0');$('context-track').setAttribute('aria-valuemax','100');}else $('context-track').removeAttribute('aria-valuenow');
   text('strip-cache',percent(cache?.hitRate));text('cache-rate',percent(cache?.hitRate));
   const tokens=usage?.tokens || cache;
@@ -544,7 +555,7 @@ $('refresh-button').addEventListener('click', refreshManually);
 languagePicker=language.mountLanguagePicker({button:$('language-toggle'),parent:document.body,choose:value=>preferences.choose(value)});
 for(const button of document.querySelectorAll('[data-speed-style-choice]'))button.addEventListener('click',()=>void speedStyle.choose(button.dataset.speedStyleChoice));
 document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
-window.addEventListener('pagehide',()=>{preferences.dispose();languagePicker.close(false);});
+window.addEventListener('pagehide',()=>{preferences.dispose();speedStyle.dispose();languagePicker.close(false);});
 window.addEventListener('pageshow',event=>{if(event.persisted)preferences=connectPreferences();});
 setInterval(updateCountdowns,1000);
 applySpeedStyle();

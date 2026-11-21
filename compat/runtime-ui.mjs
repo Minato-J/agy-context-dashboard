@@ -221,7 +221,7 @@ export class RuntimeUi {
       }
       else if (input.type === 'preferences' && this.preferences) {
         const value=input.input;
-        if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).some(key=>!['language','languageGuideDismissed','usageGuideDismissed','speedStyle','usageScope','autoRelaunchDebug'].includes(key)))throw new Error('Invalid preferences request');
+        if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).some(key=>!['language','languageGuideDismissed','usageGuideDismissed','speedStyle','quotaDisplay','usageScope','autoRelaunchDebug'].includes(key)))throw new Error('Invalid preferences request');
         result=Object.keys(value).length?await this.preferences.set(value):await this.preferences.get();
       }
       else if (input.type === 'diagnostic' && ['boot', 'mounted', 'mount-error'].includes(input.input?.stage)) {

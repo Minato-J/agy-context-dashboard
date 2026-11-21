@@ -11,6 +11,10 @@ Python 3.10+ 仅用于生命周期，无 pip 依赖；后台使用宿主 Node，
 
 2026-10-28 补充：Windows 11 / 桌面 App **2.28.0** 已实机验证修复后的单份控件、历史会话速率／Token／上下文恢复、详情卡、用量窗口、额度和会话往返切换。延迟回调与重复挂载的浏览器回归纳入三系统 CI；这不等同于 Linux/macOS 2.28.0 或新版独立 IDE 的登录后实机验收。安装后需要完整退出并重开宿主一次。
 
+2026-11-20 / **v0.9.7**（[`#32`](https://github.com/wycocoyu/agy-context-dashboard/issues/32)）：新增非侵入式更新提醒——后台静默检查新版本（启动时 + 每 `6` 小时，与手动检查去重），内嵌栏上下文胶囊绿点与详情弹窗绿色版本徽标（已是最新自动隐藏），更新说明圆点化并附「完整说明 ↗」；修复页脚 GitHub 仓库 SVG 在 IDE Trusted Types 下的渲染。不改变宿主兼容矩阵，`2.33.x` / `2.34.0+` 凭据机制兼容保持不变。
+
+2026-11-20 / **v0.9.6**：适配 **Antigravity 桌面 App 2.34.0+** 取消 `language_server` 命令行 `--csrf_token` 参数的机制变更（新增 `resolveDaemonCredential` 从 `~/.gemini/<appDataDir>/daemon/*.json` 按 PID 与实时端口校验回落读取，兼容 `<= 2.33.x`），并在 macOS Antigravity `2.34.0` 实机验证恢复内嵌栏（`dot live`）与真实额度拉取；同步合入上下文压缩次数（`🗜`）、`>= 75%` / `>= 90%` 警戒变色、`verifyCachedServer` 租约保活、`discoveryCommandError` 报错脱敏及 `#quota-error` 单栏提示去重。
+
 2026-11-18 / **v0.9.5**（[`#19`](https://github.com/wycocoyu/agy-context-dashboard/issues/19)、[`#20`](https://github.com/wycocoyu/agy-context-dashboard/pull/20)）：合并上游 `v0.9.2`–`v0.9.5` 性能优化与启动入口自愈，并加固 **Antigravity 桌面 App 2.33.0+** 默认自动恢复逻辑：
 - 合并上游轻量历史补录与内存优化（`GetCascadeTrajectoryGeneratorMetadata({ includeMessages: false })`、过滤孤儿 `brain/<id>`、已稳定空库标记完成、`GetAllCascadeTrajectories` 摘要缓存、HTTP 200 免重扫、日志尾部 `256 KiB` 逆向分块读取、SDK `2 MiB` 分块扫描、主采集器 `--max-old-space-size=192`，以及 `v0.9.3`–`v0.9.4` Windows CI 稳定性修复）；
 - 合并上游 Windows `.lnk` 快捷方式与 Linux `~/.local/share/applications/antigravity.desktop` 自动写入及运行期自愈（`compat/launch_config.py`、`compat/launch-config.mjs` 与 `inspectHostArchive`），并在 `uninstall` / `--panel-only` 时仅撤回受管参数；
@@ -36,7 +40,7 @@ Python 3.10+ 仅用于生命周期，无 pip 依赖；后台使用宿主 Node，
 
 ## Antigravity 自带 IDE
 
-专用包为 `antigrative-dashboard-ide-0.9.5.vsix`，安装入口与桌面 App 独立。
+专用包为 `antigrative-dashboard-ide-0.9.7.vsix`，安装入口与桌面 App 独立。
 Windows 11 / IDE 2.5.5（VS Code base 1.107.0）与 IDE 2.6.0（`agy --hub` 及嵌套 Agent Webview）已支持并具备完整自动化覆盖；Linux/macOS 登录后的 IDE GUI 仍待实机验收。
 Linux/macOS 的 IDE 进程筛选、端口归属、安装打包和 Trusted Types 浏览器 fixture 纳入 CI；登录后的 IDE GUI 仍待实机验收。
 当前仅支持默认用户 profile；私有 Preact/DOM 或 RPC 变化可能需要适配，不能保证未来 IDE 版本无需维护。

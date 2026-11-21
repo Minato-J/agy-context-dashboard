@@ -35,7 +35,7 @@ try{
    const strip=page.locator('#ag-pulse-status-bar');await strip.waitFor();
    await page.waitForFunction(()=>document.getElementById('ag-pulse-status-bar')?.shadowRoot.getElementById('tps').textContent==='90.0');
    assert.equal(await strip.getAttribute('data-scope'),'subagent');assert.equal(await strip.getAttribute('data-layout'),'ready');
-   assert.equal(await strip.locator('#context-percent').textContent(),'12%');assert.equal(await strip.locator('#cache-rate').textContent(),'60.0%');
+   assert.equal(await strip.locator('#context-percent').textContent(),'12%');assert.equal(await strip.locator('#cache-detail-rate').textContent(),'60.0%');
    assert.equal(await strip.evaluate(e=>e.parentElement.closest('[data-testid=agent-input-box]')!==null),true);
    await strip.locator('[data-card=context]').hover();await strip.locator('#context-card').waitFor({state:'visible'});
    assert.match(await strip.locator('#context-card .scope-note').textContent(),lang==='en'?/Current subagent/:/当前子代理/);

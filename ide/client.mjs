@@ -1,7 +1,8 @@
 import {AntigravityClient} from '../sidecars/panel/client.mjs';
+import {resolveDaemonCredential} from '../sidecars/panel/discovery.mjs';
 import {discoverIdeProcesses,discoverIdeLogPorts,agyServer,ideServer,ideHubPort} from './discovery.mjs';
 export class IdeClient extends AntigravityClient {
-  constructor({profile,debugPort,processes=discoverIdeProcesses,logPorts=discoverIdeLogPorts}={}){super();this.profile=profile;this.debugPort=debugPort;this.ideProcesses=processes;this.logPorts=logPorts;}
+  constructor({profile,debugPort,processes=discoverIdeProcesses,logPorts=discoverIdeLogPorts,probe,pidAlive,resolveDaemon=resolveDaemonCredential,now}={}){super({...(probe?{probe}:{}),...(pidAlive?{pidAlive}:{}),...(resolveDaemon?{resolveDaemon}:{}),...(now?{now}:{})});this.profile=profile;this.debugPort=debugPort;this.ideProcesses=processes;this.logPorts=logPorts;}
   async discoverNow(){
     this.server=null;
     // Missing old-profile logs must not block a 2.6 hub. Logs are optional
@@ -9,10 +10,11 @@ export class IdeClient extends AntigravityClient {
     const expectedApiPorts=await this.logPorts(this.profile).catch(()=>[]);
     const row=await this.ideProcesses(this.debugPort(),{expectedApiPorts});
     const hub=agyServer(row),hubPort=hub?ideHubPort(row):null;
+    const daemon=await this.resolveDaemon({commandLine:row.CommandLine,pid:row.ProcessId,ports:row.Ports}).catch(()=>null);
     const port=hub?(hubPort&&row.Ports.includes(hubPort)?hubPort:null)
-      :ideServer(row)?expectedApiPorts.find(port=>row.Ports.includes(port)):null;
+      :ideServer(row)?(expectedApiPorts.find(port=>row.Ports.includes(port))||(daemon?.daemonHttpPort&&row.Ports.includes(daemon.daemonHttpPort)?daemon.daemonHttpPort:null)):null;
     if(!port)throw Error('Waiting for the IDE local API port');
-    const csrf=row.CommandLine.match(/--csrf_token(?:=|\s+)"?([^\s"]+)/)?.[1];
+    const csrf=row.CommandLine.match(/--csrf_token(?:=|\s+)"?([^\s"]+)/)?.[1]||daemon?.csrf||null;
     if(!csrf)throw Error('IDE local API credential unavailable');
     this.server={port,csrf,pid:row.ProcessId};this.discoveredAt=this.now();return this.server;
   }

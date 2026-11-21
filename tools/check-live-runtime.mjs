@@ -14,7 +14,7 @@ for (const target of await discoverTargets(profile)) {
       const active=location.pathname.match(new RegExp('/c/([0-9a-f-]{36})','i'))?.[1] || null;
       const id=${JSON.stringify(selected)} || active;
       const data=await window.agPulseHost?.getMetrics({conversationId:/^[0-9a-f-]{36}$/i.test(id||'')?id:null,force:true});
-      return {mounted:Boolean(widget?.isConnected),bridge:Boolean(window.__agPulseRuntimeBridge),activeConversation:Boolean(active),connection:data?.connection,error:data?.error,tps:data?.speed?.tps,cacheHit:data?.speed?.cache?.hitRate,restored:data?.speed?.restoredFromHistory,persistenceError:data?.persistenceError,uiTps:widget?.shadowRoot?.getElementById('tps')?.textContent,uiCache:widget?.shadowRoot?.getElementById('cache-rate')?.textContent};
+      return {mounted:Boolean(widget?.isConnected),bridge:Boolean(window.__agPulseRuntimeBridge),activeConversation:Boolean(active),connection:data?.connection,error:data?.error,tps:data?.speed?.tps,cacheHit:data?.speed?.cache?.hitRate,restored:data?.speed?.restoredFromHistory,persistenceError:data?.persistenceError,uiTps:widget?.shadowRoot?.getElementById('tps')?.textContent,uiCache:widget?.shadowRoot?.getElementById('cache-detail-rate')?.textContent};
     })()`});
     if(result.exceptionDetails)throw new Error('Installed plugin diagnostic failed');
     console.log(JSON.stringify(result.result?.value));
